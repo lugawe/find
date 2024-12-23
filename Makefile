@@ -1,3 +1,5 @@
+.PHONY: build run clean buildrun
+.SILENT: build run clean buildrun
 
 build:
 	gcc main.c -o find.out
