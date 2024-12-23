@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 int main(int argc, char **argv) {
-    printf("Das coolste Projekt von allen!\n");
+    printf("Stimme zu\n");
     return 0;
 }
 
