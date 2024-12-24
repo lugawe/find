@@ -44,3 +44,18 @@ void list_add(List *list, void *content) {
     list->size++;
 }
 
+void list_free(List *list) {
+    if (list == NULL) {
+        perror("list_free: list is NULL");
+    }
+
+    ListNode *current = list->head;
+    while (current != NULL) {
+        ListNode *next = current->next;
+        free(current);
+        current = next;
+    }
+
+    free(list);
+}
+
