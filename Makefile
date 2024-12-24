@@ -8,7 +8,7 @@ run:
 	./find.out
 
 clean:
-	rm -f find.out
+	rm -f *.out
 
 buildrun: build run
 
