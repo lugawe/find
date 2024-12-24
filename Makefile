@@ -2,7 +2,7 @@
 .SILENT: build run clean buildrun
 
 build:
-	gcc main.c -o find.out
+	gcc main.c list.c -o find.out
 
 run:
 	./find.out
