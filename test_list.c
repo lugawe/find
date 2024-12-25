@@ -16,6 +16,9 @@ int main() {
     list_add(list, &c);
     list_add(list, &d);
     list_traverse(list, print_int);
+    for (int i = 0; i < list->size; i++) {
+        print_int(list_get(list, i));
+    }
     list_free(list);
     return 0;
 }
