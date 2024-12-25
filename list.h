@@ -15,5 +15,7 @@ void list_traverse(List *list, void (*fnc)(void *));
 
 void list_add(List *list, void *content);
 
+void *list_get(List *list, int index);
+
 void list_free(List *list);
 

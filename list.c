@@ -44,6 +44,28 @@ void list_add(List *list, void *content) {
     list->size++;
 }
 
+void *list_get(List *list, int index) {
+    if (list == NULL) {
+        perror("list_get: list is NULL");
+    }
+    if (index < 0 || index > list->size) {
+        perror("list_get: invalid index");
+    }
+
+    int c = 0;
+
+    ListNode *head = list->head;
+    while (head != NULL) {
+        if (index == c) {
+            return head->content;
+        }
+        head = head->next;
+        c++;
+    }
+
+    return NULL;
+}
+
 void list_free(List *list) {
     if (list == NULL) {
         perror("list_free: list is NULL");
