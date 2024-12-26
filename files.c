@@ -53,6 +53,9 @@ File *list_files(char *directory, int *amount) {
         *amount = size;
 
         closedir(d);
+    } else {
+
+        perror("list_files: cannot open directory");
     }
     return result;
 }
