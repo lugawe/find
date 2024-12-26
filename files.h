@@ -1,7 +1,9 @@
 
+typedef enum FileType { TYPE_UNKNOWN, TYPE_DIRECTORY, TYPE_FILE } FileType;
+
 typedef struct File {
+    FileType type;
     char *name;
-    long size;
 } File;
 
 void print_file(File *file);

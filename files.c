@@ -8,6 +8,17 @@
 
 File *create_file(struct dirent *dir) {
     File *file = malloc(sizeof(File));
+    switch (dir->d_type) {
+        case DT_DIR:
+            file->type = TYPE_DIRECTORY;
+            break;
+        case DT_REG:
+            file->type = TYPE_FILE;
+            break;
+        default:
+            file->type = TYPE_UNKNOWN;
+            break;
+    }
     file->name = strdup(dir->d_name);
     return file;
 }
@@ -22,7 +33,10 @@ File *list_files(char *directory, int *amount) {
 
         struct dirent *dir;
         while ((dir = readdir(d)) != NULL) {
-            list_add(list, create_file(dir));
+            File *file = create_file(dir);
+            if (file->type != TYPE_UNKNOWN) {
+                list_add(list, file);
+            }
         }
 
         int size = list->size;
@@ -31,6 +45,8 @@ File *list_files(char *directory, int *amount) {
         for (int i = 0; i < size; i++) {
             result[i] = *(File *)list_get(list, i);
         }
+
+        // qsort(result, size, sizeof(File), files_type_comparator);
 
         *amount = size;
 
