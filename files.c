@@ -46,6 +46,8 @@ File *list_files(char *directory, int *amount) {
             result[i] = *(File *)list_get(list, i);
         }
 
+        list_free(list);
+
         // qsort(result, size, sizeof(File), files_type_comparator);
 
         *amount = size;
