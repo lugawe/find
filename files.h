@@ -9,5 +9,6 @@ typedef struct File {
 
 void print_file(File *file);
 
-File *list_files(char *directory, int *amount);
+File *list_files_rec(char *directory, int depth, int *amount);
 
+File *list_files(char *directory, int *amount);
