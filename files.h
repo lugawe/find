@@ -7,7 +7,11 @@ typedef struct File {
     char *name;
 } File;
 
-void print_file(File *file);
+typedef int (*FilePredicate)(File *);
+
+void traverse_files_rec(char *directory, int depth, FilePredicate predicate);
+
+void traverse_files(char *directory, FilePredicate predicate);
 
 File *list_files_rec(char *directory, int depth, int *amount);
 

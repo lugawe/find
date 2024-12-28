@@ -25,19 +25,23 @@ File *create_file(char *directory, struct dirent *dir) {
     return file;
 }
 
-void walk_files0(List *list, char *directory, int depth, int current_depth) {
+void walk_files0(List *list, char *directory, int depth, int current_depth,
+                 FilePredicate predicate) {
     DIR *d = opendir(directory);
     if (d) {
         struct dirent *dir;
         while ((dir = readdir(d)) != NULL) {
             File *file = create_file(directory, dir);
-            if (file->type != TYPE_UNKNOWN) {
-                list_add(list, file);
-            }
-            if (file->type == TYPE_DIRECTORY && current_depth < depth) {
-                char *name = file->name;
-                if (strcmp(".", name) != 0 && strcmp("..", name) != 0) {
-                    walk_files0(list, file->path, depth, current_depth + 1);
+            if (predicate == NULL || predicate(file)) {
+                if (file->type != TYPE_UNKNOWN) {
+                    list_add(list, file);
+                }
+                if (file->type == TYPE_DIRECTORY && current_depth < depth) {
+                    char *name = file->name;
+                    if (strcmp(".", name) != 0 && strcmp("..", name) != 0) {
+                        walk_files0(list, file->path, depth, current_depth + 1,
+                                    predicate);
+                    }
                 }
             }
         }
@@ -48,37 +52,38 @@ void walk_files0(List *list, char *directory, int depth, int current_depth) {
     }
 }
 
-void walk_files(List *list, char *directory, int depth) {
-    walk_files0(list, directory, depth, 0);
+void walk_files(List *list, char *directory, int depth,
+                FilePredicate predicate) {
+    walk_files0(list, directory, depth, 0, predicate);
 }
 
-void print_file(File *file) { printf("%s\n", file->path); }
+void traverse_files_rec(char *directory, int depth, FilePredicate predicate) {
+    List *list = list_create();
+    walk_files(list, directory, depth, predicate);
+    list_free(list);
+}
+
+void traverse_files(char *directory, FilePredicate predicate) {
+    traverse_files_rec(directory, 0, predicate);
+}
 
 File *list_files_rec(char *directory, int depth, int *amount) {
-    File *result;
-    DIR *d = opendir(directory);
-    if (d) {
-        List *list = list_create();
+    List *list = list_create();
 
-        walk_files(list, directory, depth);
+    walk_files(list, directory, depth, NULL);
 
-        int size = list->size;
+    int size = list->size;
 
-        result = malloc(sizeof(File) * size);
-        for (int i = 0; i < size; i++) {
-            result[i] = *(File *)list_get(list, i);
-        }
-
-        list_free(list);
-
-        // qsort(result, size, sizeof(File), files_type_comparator);
-
-        *amount = size;
-
-        closedir(d);
-    } else {
-        perror("list_files: cannot open directory");
+    File *result = malloc(sizeof(File) * size);
+    for (int i = 0; i < size; i++) {
+        result[i] = *(File *)list_get(list, i);
     }
+
+    list_free(list);
+
+    // qsort(result, size, sizeof(File), files_type_comparator);
+
+    *amount = size;
     return result;
 }
 
