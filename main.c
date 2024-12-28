@@ -3,9 +3,9 @@
 
 #include "files.h"
 
-void print_file(File *file) { printf("%s\n", file->path); }
+void print_file(const File *file) { printf("%s\n", file->path); }
 
-int file_truepredicate(File *file) {
+int file_truepredicate(const File *file) {
     print_file(file);
     return 1;
 }
