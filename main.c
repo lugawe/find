@@ -5,7 +5,7 @@
 
 void print_files(char *dir) {
     int size = 0;
-    File *files = list_files(dir, &size);
+    File *files = list_files_rec(dir, 1000, &size); // todo to be discussed
 
     for (int i = 0; i < size; i++) {
         print_file(&files[i]);
