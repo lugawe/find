@@ -7,7 +7,7 @@ typedef struct File {
     char *name;
 } File;
 
-typedef int (*FilePredicate)(File *);
+typedef int /* bool */ (*FilePredicate)(const File *);
 
 void traverse_files_rec(char *directory, int depth, FilePredicate predicate);
 
