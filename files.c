@@ -25,23 +25,17 @@ File *create_file(char *directory, struct dirent *dir) {
     return file;
 }
 
-void walk_files0(List *list, char *directory, int depth, int current_depth,
-                 FilePredicate predicate) {
+void walk_files0(char *directory, int depth, int current_depth, FileConsumer consumer) {
     DIR *d = opendir(directory);
     if (d) {
         struct dirent *dir;
         while ((dir = readdir(d)) != NULL) {
             File *file = create_file(directory, dir);
-            if (predicate == NULL || predicate(file)) {
-                if (file->type != TYPE_UNKNOWN) {
-                    list_add(list, file);
-                }
-                if (file->type == TYPE_DIRECTORY && current_depth < depth) {
-                    char *name = file->name;
-                    if (strcmp(".", name) != 0 && strcmp("..", name) != 0) {
-                        walk_files0(list, file->path, depth, current_depth + 1,
-                                    predicate);
-                    }
+            consumer(file);
+            if (file->type == TYPE_DIRECTORY && current_depth < depth) {
+                char *name = file->name;
+                if (strcmp(".", name) != 0 && strcmp("..", name) != 0) {
+                    walk_files0(file->path, depth, current_depth + 1, consumer);
                 }
             }
         }
@@ -52,25 +46,34 @@ void walk_files0(List *list, char *directory, int depth, int current_depth,
     }
 }
 
-void walk_files(List *list, char *directory, int depth,
-                FilePredicate predicate) {
-    walk_files0(list, directory, depth, 0, predicate);
+void walk_files(char *directory, int depth, FileConsumer consumer) {
+    walk_files0(directory, depth, 0, consumer);
 }
 
-void traverse_files_rec(char *directory, int depth, FilePredicate predicate) {
-    List *list = list_create();
-    walk_files(list, directory, depth, predicate);
-    list_free(list);
+// ---
+
+void traverse_files_rec(char *directory, int depth, FileConsumer consumer) {
+    walk_files(directory, depth, consumer);
 }
 
-void traverse_files(char *directory, FilePredicate predicate) {
-    traverse_files_rec(directory, 0, predicate);
+void traverse_files(char *directory, FileConsumer consumer) {
+    traverse_files_rec(directory, 0, consumer);
+}
+
+// ---
+
+List *list;
+
+void list_add_fileconsumer(File *file) {
+    if (file->type == TYPE_FILE) {
+        list_add(list, file);
+    }
 }
 
 File *list_files_rec(char *directory, int depth, int *amount) {
-    List *list = list_create();
+    list = list_create();
 
-    walk_files(list, directory, depth, NULL);
+    walk_files(directory, depth, list_add_fileconsumer);
 
     int size = list->size;
 
@@ -80,6 +83,7 @@ File *list_files_rec(char *directory, int depth, int *amount) {
     }
 
     list_free(list);
+    list = NULL;
 
     // qsort(result, size, sizeof(File), files_type_comparator);
 
@@ -87,6 +91,4 @@ File *list_files_rec(char *directory, int depth, int *amount) {
     return result;
 }
 
-File *list_files(char *directory, int *amount) {
-    return list_files_rec(directory, 0, amount);
-}
+File *list_files(char *directory, int *amount) { return list_files_rec(directory, 0, amount); }
