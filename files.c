@@ -91,4 +91,6 @@ File *list_files_rec(char *directory, int depth, int *amount) {
     return result;
 }
 
-File *list_files(char *directory, int *amount) { return list_files_rec(directory, 0, amount); }
+File *list_files(char *directory, int *amount) {
+    return list_files_rec(directory, 0, amount);
+}
