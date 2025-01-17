@@ -20,7 +20,7 @@ File *create_file(char *directory, struct dirent *dir) {
             file->type = TYPE_UNKNOWN;
             break;
     }
-    file->name = strdup(dir->d_name);
+    file->name = dir->d_name;
     file->path = mstrcat(directory, "/", file->name, NULL);
     return file;
 }

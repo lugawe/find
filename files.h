@@ -3,8 +3,8 @@ typedef enum FileType { TYPE_UNKNOWN, TYPE_DIRECTORY, TYPE_FILE } FileType;
 
 typedef struct File {
     FileType type;
-    char *path;
     char *name;
+    char *path;
 } File;
 
 typedef void (*FileConsumer)(File *);
