@@ -43,6 +43,10 @@ void walk_files0(char *directory, int depth, int current_depth, Options *options
 
         File *file = create_file(directory, dir);
 
+        if (file->type == TYPE_DIRECTORY && current_depth < depth) {
+            walk_files0(file->path, depth, current_depth + 1, options, consumer);
+        }
+
         if (options && options->name) {
             //TODO: filter by name
         }
@@ -76,10 +80,6 @@ void walk_files0(char *directory, int depth, int current_depth, Options *options
             system(command);
         } else {
             consumer(file);
-        }
-
-        if (file->type == TYPE_DIRECTORY && current_depth < depth) {
-            walk_files0(file->path, depth, current_depth + 1, options, consumer);
         }
 
         free(file);
