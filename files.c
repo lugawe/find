@@ -23,7 +23,7 @@ File *create_file(char *directory, struct dirent *dir) {
             file->type = TYPE_UNKNOWN;
             break;
     }
-    file->name = strdup(dir->d_name);  
+    file->name = dir->d_name;  
     file->path = mstrcat(directory, "/", file->name, NULL);
     return file;
 }
@@ -79,9 +79,7 @@ void walk_files0(char *directory, int depth, int current_depth, Options *options
         }
 
         if (file->type == TYPE_DIRECTORY && current_depth < depth) {
-            char *newDir = strdup(file->path);  
-            walk_files0(newDir, depth, current_depth + 1, options, consumer);
-            free(newDir);
+            walk_files0(file->path, depth, current_depth + 1, options, consumer);
         }
 
         free(file);
