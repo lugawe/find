@@ -7,12 +7,20 @@ typedef struct File {
     char *path;
 } File;
 
+typedef struct Options {
+    char *directory;
+    char *name;
+    char *type;
+    char *mtime;
+    char *exec;
+} Options;
+
 typedef void (*FileConsumer)(File *);
 
-void traverse_files_rec(char *directory, int depth, FileConsumer consumer);
+void traverse_files_rec(int depth, Options *options, FileConsumer consumer);
 
-void traverse_files(char *directory, FileConsumer consumer);
+void traverse_files(Options *options, FileConsumer consumer);
 
-File *list_files_rec(char *directory, int depth, int *amount);
+File *list_files_rec(Options *options, int depth, int *amount);
 
-File *list_files(char *directory, int *amount);
+File *list_files(Options *options, int *amount);

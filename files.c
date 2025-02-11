@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <ctype.h>
 
 #include "files.h"
 #include "list.h"
@@ -20,44 +23,83 @@ File *create_file(char *directory, struct dirent *dir) {
             file->type = TYPE_UNKNOWN;
             break;
     }
-    file->name = dir->d_name;
+    file->name = strdup(dir->d_name);  
     file->path = mstrcat(directory, "/", file->name, NULL);
     return file;
 }
 
-void walk_files0(char *directory, int depth, int current_depth, FileConsumer consumer) {
+void walk_files0(char *directory, int depth, int current_depth, Options *options, FileConsumer consumer) {
     DIR *d = opendir(directory);
-    if (d) {
-        struct dirent *dir;
-        while ((dir = readdir(d)) != NULL) {
-            File *file = create_file(directory, dir);
-            consumer(file);
-            if (file->type == TYPE_DIRECTORY && current_depth < depth) {
-                char *name = file->name;
-                if (strcmp(".", name) != 0 && strcmp("..", name) != 0) {
-                    walk_files0(file->path, depth, current_depth + 1, consumer);
+    if (!d) {
+        perror("list_files: cannot open directory");
+        return;
+    }
+    
+    struct dirent *dir;
+    while ((dir = readdir(d)) != NULL) {
+        if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
+            continue;
+        }
+
+        File *file = create_file(directory, dir);
+
+        if (options && options->name) {
+            //TODO: filter by name
+        }
+
+        if (options && options->type) {
+            //TODO: filter by type
+        }
+
+        if (options && options->mtime) {
+            struct stat file_stat;
+            if (stat(file->path, &file_stat) == 0) {
+                time_t now = time(NULL);
+                time_t file_mtime = file_stat.st_mtime;
+                int days_old = (now - file_mtime) / 86400;
+                
+                int mtime_val = abs(atoi(options->mtime));
+                char sign = options->mtime[0];
+
+                if ((sign == '+' && days_old <= mtime_val) || 
+                    (sign == '-' && days_old >= mtime_val) || 
+                    (isdigit(sign) && days_old != mtime_val)) {
+                    free(file);
+                    continue;
                 }
             }
         }
 
-        closedir(d);
-    } else {
-        perror("list_files: cannot open directory");
+        if (options && options->exec) {
+            char command[1024];
+            snprintf(command, sizeof(command), "%s %s", options->exec, file->path);
+            system(command);
+        } else {
+            consumer(file);
+        }
+
+        if (file->type == TYPE_DIRECTORY && current_depth < depth) {
+            char *newDir = strdup(file->path);  
+            walk_files0(newDir, depth, current_depth + 1, options, consumer);
+            free(newDir);
+        }
+
+        free(file);
     }
+
+    closedir(d);
 }
 
-void walk_files(char *directory, int depth, FileConsumer consumer) {
-    walk_files0(directory, depth, 0, consumer);
+void walk_files(int depth, Options *options, FileConsumer consumer) {
+    walk_files0(options->directory, depth, 0, options, consumer);
 }
 
-// ---
-
-void traverse_files_rec(char *directory, int depth, FileConsumer consumer) {
-    walk_files(directory, depth, consumer);
+void traverse_files_rec(int depth, Options *options, FileConsumer consumer) {
+    walk_files(depth, options, consumer);
 }
 
-void traverse_files(char *directory, FileConsumer consumer) {
-    traverse_files_rec(directory, 0, consumer);
+void traverse_files(Options *options, FileConsumer consumer) {
+    traverse_files_rec(1000, options, consumer);
 }
 
 // ---
@@ -70,10 +112,11 @@ void list_add_fileconsumer(File *file) {
     }
 }
 
-File *list_files_rec(char *directory, int depth, int *amount) {
+File *list_files_rec(Options *options, int depth, int *amount) {
     list = list_create();
 
-    walk_files(directory, depth, list_add_fileconsumer);
+    walk_files(depth, options, list_add_fileconsumer);
+
 
     int size = list->size;
 
@@ -91,6 +134,6 @@ File *list_files_rec(char *directory, int depth, int *amount) {
     return result;
 }
 
-File *list_files(char *directory, int *amount) {
-    return list_files_rec(directory, 0, amount);
+File *list_files(Options *options, int *amount) {
+    return list_files_rec(options, 0, amount);
 }
