@@ -17,8 +17,9 @@ Should only print files with the same type as the given parameter
 
 ### 4 - Call with parameter -m n
 
-Prints out all files of which has last been modified less than or more than n days ago. With n being a positive or negative integer.
+Prints out all files of which has last been modified more than, less than or exact n days ago. With n being a positive integer.
+Passing value n requires one of the following formats: +n, -n, or n.
 
 ### 5 - Call with parameter -e command
 
-Executes the specified command for all found files. For example calling with "-exec cat" prints the content of all found files. 
+Executes the specified command for all found files. For example calling with "-e cat" prints the content of all found files.
