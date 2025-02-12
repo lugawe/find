@@ -119,6 +119,8 @@ void walk_files(Options *options, FileConsumer consumer) {
     walk_files0(options->directory, atoi(options->maxdepth), 0, options, consumer);
 }
 
+// ---
+
 void traverse_files_rec(Options *options, FileConsumer consumer) {
     walk_files(options, consumer);
 }
