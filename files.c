@@ -48,11 +48,51 @@ void walk_files0(char *directory, int depth, int current_depth, Options *options
         }
 
         if (options && options->name) {
-            //TODO: filter by name
+            //if(fnmatch(options->name, file->name, 0) != 0) { free(file); continue;} consumer(file);
+           const char *pattern = options->name;
+           const char *name = file->name;
+			printf("Currently checking file: %s\n", file->name);
+           int match = 1;
+           while(pattern && name){
+             if (*pattern == '*') {
+               pattern++;
+               if (*pattern == '\0') {
+                 match = 1;
+                 break;
+               }
+               while (*name && *name != *pattern) {
+                 name++;
+               }
+             } else if (*pattern == '?' || *pattern == *name) {
+               pattern++;
+               name++;
+             } else {
+               match = 0;
+               break;
+             }
+           }
+
+           if (*pattern || *name) {
+           match = 0;
+           break;
+           }
+
+           if(!match) {
+             free(file);
+             printf("File does not match criteria: %s\n", file->name);
+             continue;
+           }
+           consumer(file);
+
         }
 
         if (options && options->type) {
-            //TODO: filter by type
+            char type = options->type[0];
+            if ((type == 'f' && file->type != TYPE_DIRECTORY)
+                || (type == 'd' && file->type != TYPE_FILE)) {
+              free(file);
+              continue;
+            }
         }
 
         if (options && options->mtime) {
