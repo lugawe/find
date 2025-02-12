@@ -1,14 +1,72 @@
+#include <ctype.h>
 #include <dirent.h>
+#include <fnmatch.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <ctype.h>
 
 #include "files.h"
 #include "list.h"
 #include "utils.h"
+
+bool test_file(File *file, Options *options) {
+    if (!options) return true;
+
+    // -n
+    if (options->name) {
+        if (fnmatch(options->name, file->name, 0) != 0) {
+            return false;
+        }
+    }
+
+    // -t
+    if (options->type) {
+        char type = options->type[0];
+        if ((type == 'd' && file->type != TYPE_DIRECTORY) ||
+            (type == 'f' && file->type != TYPE_FILE)) {
+            return false;
+        }
+    }
+
+    // -m / -s
+    if (options->mtime || options->size) {
+        struct stat file_stat;
+        if (stat(file->path, &file_stat) == 0) {
+            if (options->mtime) {
+                time_t now = time(NULL);
+                time_t file_mtime = file_stat.st_mtime;
+                int days_old = (now - file_mtime) / 86400;
+
+                int mtime_val = abs(atoi(options->mtime));
+                char sign = options->mtime[0];
+
+                if ((sign == '+' && days_old <= mtime_val) ||
+                    (sign == '-' && days_old >= mtime_val) ||
+                    (isdigit(sign) && days_old != mtime_val)) {
+                    return false;
+                }
+            }
+            if (options->size) {
+                int size = file_stat.st_size;
+                if (atoi(options->size) != size) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    // -e
+    if (options->exec) {
+        char command[1024];
+        snprintf(command, sizeof(command), "%s %s", options->exec, file->path);
+        system(command);
+    }
+
+    return true;
+}
 
 File *create_file(char *directory, struct dirent *dir) {
     File *file = malloc(sizeof(File));
@@ -23,7 +81,7 @@ File *create_file(char *directory, struct dirent *dir) {
             file->type = TYPE_UNKNOWN;
             break;
     }
-    file->name = dir->d_name;  
+    file->name = dir->d_name;
     file->path = mstrcat(directory, "/", file->name, NULL);
     return file;
 }
@@ -34,7 +92,7 @@ void walk_files0(char *directory, int depth, int current_depth, Options *options
         perror("list_files: cannot open directory");
         return;
     }
-    
+
     struct dirent *dir;
     while ((dir = readdir(d)) != NULL) {
         if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
@@ -43,86 +101,15 @@ void walk_files0(char *directory, int depth, int current_depth, Options *options
 
         File *file = create_file(directory, dir);
 
-        if (file->type == TYPE_DIRECTORY && current_depth < depth) {
+        if (file->type == TYPE_DIRECTORY && (depth == -1 || current_depth < depth)) {
             walk_files0(file->path, depth, current_depth + 1, options, consumer);
         }
 
-        if (options && options->name) {
-            //if(fnmatch(options->name, file->name, 0) != 0) { free(file); continue;} consumer(file);
-           const char *pattern = options->name;
-           const char *name = file->name;
-			printf("Currently checking file: %s\n", file->name);
-           int match = 1;
-           while(pattern && name){
-             if (*pattern == '*') {
-               pattern++;
-               if (*pattern == '\0') {
-                 match = 1;
-                 break;
-               }
-               while (*name && *name != *pattern) {
-                 name++;
-               }
-             } else if (*pattern == '?' || *pattern == *name) {
-               pattern++;
-               name++;
-             } else {
-               match = 0;
-               break;
-             }
-           }
-
-           if (*pattern || *name) {
-           match = 0;
-           break;
-           }
-
-           if(!match) {
-             free(file);
-             printf("File does not match criteria: %s\n", file->name);
-             continue;
-           }
-           consumer(file);
-
-        }
-
-        if (options && options->type) {
-            char type = options->type[0];
-            if ((type == 'f' && file->type != TYPE_DIRECTORY)
-                || (type == 'd' && file->type != TYPE_FILE)) {
-              free(file);
-              continue;
-            }
-        }
-
-        if (options && options->mtime) {
-            struct stat file_stat;
-            if (stat(file->path, &file_stat) == 0) {
-                time_t now = time(NULL);
-                time_t file_mtime = file_stat.st_mtime;
-                int days_old = (now - file_mtime) / 86400;
-                
-                int mtime_val = abs(atoi(options->mtime));
-                char sign = options->mtime[0];
-
-                if ((sign == '+' && days_old <= mtime_val) || 
-                    (sign == '-' && days_old >= mtime_val) || 
-                    (isdigit(sign) && days_old != mtime_val)) {
-                    free(file);
-                    continue;
-                }
-            }
-        }
-
-        if (options && options->exec) {
-            char command[1024];
-            snprintf(command, sizeof(command), "%s %s", options->exec, file->path);
-            system(command);
-        } else {
+        if (test_file(file, options)) {
             consumer(file);
+        } else {
+            free(file);
         }
-
-        free(file);
     }
 
     closedir(d);
@@ -154,7 +141,6 @@ File *list_files_rec(Options *options, int depth, int *amount) {
     list = list_create();
 
     walk_files(depth, options, list_add_fileconsumer);
-
 
     int size = list->size;
 

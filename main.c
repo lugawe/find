@@ -9,12 +9,13 @@ void parse_arguments(int argc, char **argv, Options *options) {
     int option;
 
     options->directory = ".";
+    options->maxdepth = "-1";
 
     if (argc > 1 && argv[1][0] != '-') {
         options->directory = argv[1];
     }
 
-    while ((option = getopt(argc, argv, "n:t:m:e:")) != -1) {
+    while ((option = getopt(argc, argv, "n:t:m:e:s:d:")) != -1) {
         switch (option) {
             case 'n':  // -name
                 options->name = optarg;
@@ -32,8 +33,16 @@ void parse_arguments(int argc, char **argv, Options *options) {
                 options->exec = optarg;
                 printf("'-exec' with value: %s\n", options->exec);
                 break;
+            case 's':  // -size
+                options->size = optarg;
+                printf("'-size' with value: %s\n", options->size);
+                break;
+            case 'd':  // -maxdepth
+                options->maxdepth = optarg;
+                printf("'-maxdepth' with value: %s\n", options->maxdepth);
+                break;
             default:
-                fprintf(stderr, "Usage: %s [-m value] [-e command] [-n filename] [-t filetype] [directory]\n", argv[0]);
+                fprintf(stderr, "Usage: %s [directory] [-m value] [-e command] [-n filename] [-t filetype] [-s size] [-d maxdepth]\n", argv[0]);
                 exit(EXIT_FAILURE);
         }
     }
@@ -43,7 +52,7 @@ void print_file(File *file) { printf("%s\n", file->path); }
 
 // void list_print_files(char *dir) {
 //     int size = 0;
-//     File *files = list_files_rec(dir, 1000, &size);  // todo to be discussed
+//     File *files = list_files_rec(dir, -1, &size);
 
 //     for (int i = 0; i < size; i++) {
 //         print_file(&files[i]);
@@ -51,12 +60,12 @@ void print_file(File *file) { printf("%s\n", file->path); }
 // }
 
 void traverse_print_files(Options *options) {
-    traverse_files_rec(1000, options, print_file);  // todo to be discussed
+    traverse_files_rec(atoi(options->maxdepth), options, print_file);
 }
 
 int main(int argc, char **argv) {
     Options options = {NULL, NULL, NULL, NULL, NULL};
-    
+
     parse_arguments(argc, argv, &options);
     traverse_print_files(&options);
 
