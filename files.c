@@ -115,16 +115,12 @@ void walk_files0(char *directory, int depth, int current_depth, Options *options
     closedir(d);
 }
 
-void walk_files(int depth, Options *options, FileConsumer consumer) {
-    walk_files0(options->directory, depth, 0, options, consumer);
+void walk_files(Options *options, FileConsumer consumer) {
+    walk_files0(options->directory, atoi(options->maxdepth), 0, options, consumer);
 }
 
-void traverse_files_rec(int depth, Options *options, FileConsumer consumer) {
-    walk_files(depth, options, consumer);
-}
-
-void traverse_files(Options *options, FileConsumer consumer) {
-    traverse_files_rec(1000, options, consumer);
+void traverse_files_rec(Options *options, FileConsumer consumer) {
+    walk_files(options, consumer);
 }
 
 // ---
@@ -132,15 +128,13 @@ void traverse_files(Options *options, FileConsumer consumer) {
 List *list;
 
 void list_add_fileconsumer(File *file) {
-    if (file->type == TYPE_FILE) {
-        list_add(list, file);
-    }
+    list_add(list, file);
 }
 
-File *list_files_rec(Options *options, int depth, int *amount) {
+File *list_files_rec(Options *options, int *amount) {
     list = list_create();
 
-    walk_files(depth, options, list_add_fileconsumer);
+    walk_files(options, list_add_fileconsumer);
 
     int size = list->size;
 
@@ -156,8 +150,4 @@ File *list_files_rec(Options *options, int depth, int *amount) {
 
     *amount = size;
     return result;
-}
-
-File *list_files(Options *options, int *amount) {
-    return list_files_rec(options, 0, amount);
 }

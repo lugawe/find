@@ -19,10 +19,6 @@ typedef struct Options {
 
 typedef void (*FileConsumer)(File *);
 
-void traverse_files_rec(int depth, Options *options, FileConsumer consumer);
+void traverse_files_rec(Options *options, FileConsumer consumer);
 
-void traverse_files(Options *options, FileConsumer consumer);
-
-File *list_files_rec(Options *options, int depth, int *amount);
-
-File *list_files(Options *options, int *amount);
+File *list_files_rec(Options *options, int *amount);
