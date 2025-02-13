@@ -7,13 +7,36 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <pwd.h>
+#include <grp.h>
 
 #include "files.h"
 #include "list.h"
 #include "utils.h"
 
+bool check_user(File *file, char *user) {
+    struct stat file_stat;
+    struct passwd *pwd;
+
+    if (stat(file->path, &file_stat) == -1) {
+        return false;
+    }
+
+    pwd = getpwuid(file_stat.st_uid);
+    if (!pwd) {
+        return false;
+    }
+    
+    if (strcmp(pwd->pw_name, user) == 0) {
+        return true;
+    }
+    return false;
+}
+
 bool test_file(File *file, Options *options) {
-    if (!options) return true;
+    if (!options) {
+        return true;
+    }
 
     // -n
     if (options->name) {
@@ -63,6 +86,13 @@ bool test_file(File *file, Options *options) {
         char command[1024];
         snprintf(command, sizeof(command), "%s %s", options->exec, file->path);
         system(command);
+    }
+
+    // -u
+    if (options->user) {
+        if (!check_user(file, options->user)) {
+            return false;
+        }
     }
 
     return true;

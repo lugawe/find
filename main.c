@@ -15,7 +15,7 @@ void parse_arguments(int argc, char **argv, Options *options) {
         options->directory = argv[1];
     }
 
-    while ((option = getopt(argc, argv, "n:t:m:e:s:d:c")) != -1) {
+    while ((option = getopt(argc, argv, "n:t:m:e:s:d:u:c")) != -1) {
         switch (option) {
             case 'n':  // -name
                 options->name = optarg;
@@ -37,12 +37,15 @@ void parse_arguments(int argc, char **argv, Options *options) {
                 options->size = optarg;
                 // printf("'-size' with value: %s\n", options->size);
                 break;
-                case 'd':  // -maxdepth
+            case 'd':  // -maxdepth
                 options->maxdepth = optarg;
                 // printf("'-maxdepth' with value: %s\n", options->maxdepth);
                 break;
             case 'c':  // -count
                 options->count = 1;
+                break;
+            case 'u':  // -count
+                options->user = optarg;
                 break;
             default:
                 fprintf(stderr, "Usage: %s [directory] [-m value] [-e command] [-n filename] [-t filetype] [-s size] [-d maxdepth]\n", argv[0]);
