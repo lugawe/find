@@ -8,32 +8,32 @@ This project includes a `Makefile` to compile and execute the program efficientl
 ### Building the Program
 To compile the source files and generate the executable `find.out`, run:
 
+```bash
+make all # or just make
 ```
-make all
-```
-This compiles `utils.c`, `list.c`, `files.c`, and `main.c` into `find.out`.
+This compiles `utils.c`, `list.c`, `files.c`, `filecomp.c`, and `main.c` into `find.out`.
 
 ### Running the Programm
 Once built, you can execute the program with:
-```
+```bash
 make run
 ```
 
 or manually:
-```
+```bash
 ./find.out [-options]
 ```
 
 ### Cleaning Up
 To remove the compiled binary and any output files:
-```
+```bash
 make clean
 ```
 This deletes `find.out` and ensures a clean working directory.
 
 ### Building & Running in One Step
 To compile and immediately execute the program in one command:
-```
+```bash
 make buildrun
 ```
 This runs `make all` followed by `make run`.
@@ -76,11 +76,11 @@ The `Makefile` includes test cases to validate the program's functionality.
 
 To run all tests:
 
-```
+```bash
 make test_all
 ```
 To run individual tests:
-```
+```bash
 make test_no_args      # Test: No arguments
 make test_name         # Test: File name filter (-n)
 make test_type         # Test: File type filter (-t)
