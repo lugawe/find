@@ -18,6 +18,7 @@ typedef struct Options {
     int count;
     char *user;
     char *order;
+    char *path;
 } Options;
 
 typedef void (*FileConsumer)(File *);
