@@ -1,7 +1,7 @@
 .PHONY: build run clean buildrun
 .SILENT: build run clean buildrun
 
-build:
+all:
 	gcc utils.c list.c files.c main.c -o find.out
 
 run:
@@ -10,7 +10,7 @@ run:
 clean:
 	rm -f *.out
 
-buildrun: build run
+buildrun: all run
 
 test_no_args:
 	@echo "Running test: No Arguments"
