@@ -5,6 +5,21 @@
 
 #include "files.h"
 
+void print_help(const char *prog_name) {
+    printf("Usage: %s [directory] [options]\n", prog_name);
+    printf("Options:\n");
+    printf("  -n <name>     Filter by filename\n");
+    printf("  -t <type>     Filter by file type (d for directory, f for file)\n");
+    printf("  -m <value>    Filter by modification time\n");
+    printf("  -e <command>  Execute command on each file\n");
+    printf("  -s <size>     Filter by file size\n");
+    printf("  -d <maxdepth> Limit search depth\n");
+    printf("  -c            Count matching files\n");
+    printf("  -u <user>     Filter by file owner\n");
+    printf("  -h            Show this help message\n");
+    exit(EXIT_SUCCESS);
+}
+
 void parse_arguments(int argc, char **argv, Options *options) {
     int option;
 
@@ -15,7 +30,7 @@ void parse_arguments(int argc, char **argv, Options *options) {
         options->directory = argv[1];
     }
 
-    while ((option = getopt(argc, argv, "n:t:m:e:s:d:u:c")) != -1) {
+    while ((option = getopt(argc, argv, "n:t:m:e:s:d:u:c:h")) != -1) {
         switch (option) {
             case 'n':  // -name
                 options->name = optarg;
@@ -47,6 +62,9 @@ void parse_arguments(int argc, char **argv, Options *options) {
             case 'u':  // -count
                 options->user = optarg;
                 break;
+            case 'h':  // -help
+                print_help(argv[0]);
+                exit(EXIT_SUCCESS);
             default:
                 fprintf(stderr, "Usage: %s [directory] [-m value] [-e command] [-n filename] [-t filetype] [-s size] [-d maxdepth]\n", argv[0]);
                 exit(EXIT_FAILURE);
