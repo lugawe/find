@@ -31,7 +31,7 @@ void parse_arguments(int argc, char **argv, Options *options) {
         options->directory = argv[1];
     }
 
-    while ((option = getopt(argc, argv, "n:t:m:e:s:d:u:c:o:h")) != -1) {
+    while ((option = getopt(argc, argv, "n:t:m:e:s:d:u:c:o:p:h")) != -1) {
         switch (option) {
             case 'n':  // -name
                 options->name = optarg;
@@ -66,10 +66,11 @@ void parse_arguments(int argc, char **argv, Options *options) {
             case 'o':
                 options->order = optarg;
                 break;
-            case 'h':  // -help
-                print_help(argv[0]);
             case 'p':  // -path
                 options->path = optarg;
+                break;
+            case 'h':  // -help
+                print_help(argv[0]);
                 break;
             default:
                 fprintf(stderr, "Usage: %s [directory] [-m value] [-e command] [-n filename] [-t filetype] [-s size] [-d maxdepth] [-o value]\n", argv[0]);

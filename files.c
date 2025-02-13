@@ -97,9 +97,9 @@ bool test_file(File *file, Options *options) {
     }
 
     // -p
-    if (fnmatch(options->path, file->path, FNM_PATHNAME) != 0) {
-    return false;
-}
+    if (options->path && fnmatch(options->path, file->path, FNM_PATHNAME) != 0) {
+        return false;
+    }
 
 
     return true;
