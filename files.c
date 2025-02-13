@@ -1,15 +1,16 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <fnmatch.h>
+#include <grp.h>
+#include <pwd.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <pwd.h>
-#include <grp.h>
 
+#include "filecomp.h"
 #include "files.h"
 #include "list.h"
 #include "utils.h"
@@ -26,7 +27,7 @@ bool check_user(File *file, char *user) {
     if (!pwd) {
         return false;
     }
-    
+
     if (strcmp(pwd->pw_name, user) == 0) {
         return true;
     }
@@ -138,7 +139,7 @@ void walk_files0(char *directory, int depth, int current_depth, Options *options
         }
 
         if (test_file(file, options)) {
-            if(options->count) {
+            if (options->count) {
                 counter++;
             } else {
                 consumer(file);
@@ -153,7 +154,7 @@ void walk_files0(char *directory, int depth, int current_depth, Options *options
 
 void walk_files(Options *options, FileConsumer consumer) {
     walk_files0(options->directory, atoi(options->maxdepth), 0, options, consumer);
-    if(options->count) {
+    if (options->count) {
         printf("%d\n", counter);
         counter = 0;
     }
@@ -188,7 +189,13 @@ File *list_files_rec(Options *options, int *amount) {
     list_free(list);
     list = NULL;
 
-    // qsort(result, size, sizeof(File), files_type_comparator);
+    if (options->order) {
+        if (strcmp(options->order, "name") == 0) {
+            qsort(result, size, sizeof(File), files_name_comparator);
+        } else if (strcmp(options->order, "type") == 0) {
+            qsort(result, size, sizeof(File), files_type_comparator);
+        }
+    }
 
     *amount = size;
     return result;
