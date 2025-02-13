@@ -15,6 +15,7 @@ typedef struct Options {
     char *exec;
     char *size;
     char *maxdepth;
+    int count;
 } Options;
 
 typedef void (*FileConsumer)(File *);

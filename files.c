@@ -86,6 +86,8 @@ File *create_file(char *directory, struct dirent *dir) {
     return file;
 }
 
+int counter = 0;
+
 void walk_files0(char *directory, int depth, int current_depth, Options *options, FileConsumer consumer) {
     DIR *d = opendir(directory);
     if (!d) {
@@ -106,7 +108,11 @@ void walk_files0(char *directory, int depth, int current_depth, Options *options
         }
 
         if (test_file(file, options)) {
-            consumer(file);
+            if(options->count) {
+                counter++;
+            } else {
+                consumer(file);
+            }
         } else {
             free(file);
         }
@@ -117,6 +123,10 @@ void walk_files0(char *directory, int depth, int current_depth, Options *options
 
 void walk_files(Options *options, FileConsumer consumer) {
     walk_files0(options->directory, atoi(options->maxdepth), 0, options, consumer);
+    if(options->count) {
+        printf("%d\n", counter);
+        counter = 0;
+    }
 }
 
 // ---
