@@ -64,7 +64,6 @@ void parse_arguments(int argc, char **argv, Options *options) {
                 break;
             case 'h':  // -help
                 print_help(argv[0]);
-                exit(EXIT_SUCCESS);
             default:
                 fprintf(stderr, "Usage: %s [directory] [-m value] [-e command] [-n filename] [-t filetype] [-s size] [-d maxdepth]\n", argv[0]);
                 exit(EXIT_FAILURE);
