@@ -43,7 +43,7 @@ This runs `make all` followed by `make run`.
 Should print all files and directories in working directory recursively.
 
 ### 2 - Call with parameter -n
-Should print all files where the given parameter name matches (regex) the file name.
+Should print all files where the given parameter name matches (regex) the file name. This option applies only to regular files (f) and directories (d), ignoring other file types like symbolic links or sockets.
 
 ### 3 - Call with parameter -t
 Should only print files with the same type as the given parameter.
@@ -61,6 +61,9 @@ Should only print files with file size of n bytes.
 
 ### 7 - Call with parameter -d n
 Should only print files which are n subdirectories deep.
+
+### 8 - Call with parameter -p
+Should only print files that match the given path pattern. The parameter expects a valid file path pattern and filters the results accordingly.
 
 ## Running Tests
 
