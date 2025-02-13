@@ -65,6 +65,11 @@ Should only print files which are n subdirectories deep.
 ### 8 - Call with parameter -p
 Should only print files that match the given path pattern. The parameter expects a valid file path pattern and filters the results accordingly.
 
+### 9 - Call with parameter -o value
+Sorts files using a linked list according to parameter value.
+
+Passing parameter requires one of the following values: 'name' or 'type'.
+
 ## Running Tests
 
 The `Makefile` includes test cases to validate the program's functionality. 
