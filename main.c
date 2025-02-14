@@ -17,6 +17,7 @@ void print_help(const char *prog_name) {
     printf("  -c            Count matching files\n");
     printf("  -u <user>     Filter by file owner\n");
     printf("  -o <value>    Sort files by 'name' or 'type'\n");
+    printf("  -p <path>     Filter by path\n");
     printf("  -h            Show this help message\n");
     exit(EXIT_SUCCESS);
 }
@@ -73,7 +74,7 @@ void parse_arguments(int argc, char **argv, Options *options) {
                 print_help(argv[0]);
                 break;
             default:
-                fprintf(stderr, "Usage: %s [directory] [-m value] [-e command] [-n filename] [-t filetype] [-s size] [-d maxdepth] [-o value]\n", argv[0]);
+                fprintf(stderr, "Usage: %s [directory] [-m value] [-e command] [-n filename] [-t filetype] [-s size] [-d maxdepth] [-o value] [-p path]\n", argv[0]);
                 exit(EXIT_FAILURE);
         }
     }
