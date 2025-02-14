@@ -68,6 +68,8 @@ Should only print files that match the given path pattern. The parameter expects
 ### 9 - Call with parameter -o value
 Sorts files using a linked list according to parameter value.
 
+Passing parameter requires one of the following values: 'name' or 'type'.
+
 ### 10 - Call with parameter -c
 Prints the number of found files and directories instead of them themself.
 
@@ -76,9 +78,6 @@ Prints only Files owned by user username.
 
 ### 12 - Call with parameter -h
 Print a summary of the command-line usage of the command and exit.
-
-
-Passing parameter requires one of the following values: 'name' or 'type'.
 
 ## Running Tests
 
