@@ -14,10 +14,11 @@ void print_help(const char *prog_name) {
     printf("  -e <command>  Execute command on each file\n");
     printf("  -s <size>     Filter by file size\n");
     printf("  -d <maxdepth> Limit search depth\n");
+    printf("  -p <path>     Filter files matching given path pattern\n");
+    printf("  -o <value>    Sort files by 'name' or 'type'\n");
     printf("  -c            Count matching files\n");
     printf("  -u <user>     Filter by file owner\n");
     printf("  -o <value>    Sort files by 'name' or 'type'\n");
-    printf("  -p <path>     Filter by path\n");
     printf("  -h            Show this help message\n");
     exit(EXIT_SUCCESS);
 }

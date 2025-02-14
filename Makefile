@@ -1,5 +1,5 @@
-.PHONY: build run clean buildrun
-.SILENT: build run clean buildrun
+.PHONY: all run clean buildrun
+.SILENT: all run clean buildrun
 
 all:
 	gcc utils.c list.c files.c filecomp.c main.c -o find.out
